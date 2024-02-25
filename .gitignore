@@ -8,4 +8,4 @@
 /dist/*
 !cpanel.yml
 !.gitignore
-!.gitmodules
+.gitmodules
