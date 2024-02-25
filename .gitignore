@@ -4,8 +4,8 @@
 # But don't ignore these directories and their contents
 !/CalenderCommit/
 !/CalenderCommit/*
-/dist/
-/dist/*
+!/dist/
+!/dist/*
 !cpanel.yml
 !.gitignore
 .gitmodules
