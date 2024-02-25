@@ -2,10 +2,10 @@
 *
 
 # But don't ignore these directories and their contents
-!/CalenderCommit/
-!/CalenderCommit/*
-/dist/
-/dist/*
+/CalenderCommit/
+/CalenderCommit/*
+!/dist/
+!/dist/*
 !cpanel.yml
 !.cpanel.yml
 !.gitignore
