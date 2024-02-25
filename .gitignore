@@ -6,4 +6,4 @@
 !/CalenderCommit/*
 !/dist/
 !/dist/*
-!.cpanel.yml
+!cpanel.yml
