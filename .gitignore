@@ -10,3 +10,4 @@
 !.cpanel.yml
 !.gitignore
 .gitmodules
+!test.txt
