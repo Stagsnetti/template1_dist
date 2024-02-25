@@ -1,4 +1,0 @@
-DirectoryIndex index.html index.php
-<filesMatch ".(css|jpg|jpeg|png|gif|js|ico)$">
-  Header set Cache-Control "max-age=72000, public"
-</filesMatch>
