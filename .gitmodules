@@ -7,5 +7,3 @@
 !/dist/
 !/dist/*
 !cpanel.yml
-!.gitignore
-!.gitmodules
