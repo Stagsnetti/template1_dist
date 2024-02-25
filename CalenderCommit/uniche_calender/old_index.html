@@ -1,0 +1,693 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <script type="text/javascript">
+        var pax_adults = 0;
+        var pax_children = 0;
+        var pax_infants = 0;
+        var pax_total = 0;
+
+        var checkin_date='2000-01-01';
+        var checkout_date = '2000-01-01';
+
+        var current_start_month = 1;
+        var current_start_year = 2021;
+
+        function goToStep(n) {
+            if (n == 1) {
+                document.getElementById("step_1").style.display = "block";
+                document.getElementById("step_2").style.display = "none";
+                document.getElementById("step_3").style.display = "none";
+            }
+            if (n == 2) {
+                document.getElementById("step_1").style.display = "none";
+                document.getElementById("step_2").style.display = "block";
+                document.getElementById("step_3").style.display = "none";
+            }
+            if (n == 3) {
+                document.getElementById("step_1").style.display = "none";
+                document.getElementById("step_2").style.display = "none";
+                document.getElementById("step_3").style.display = "block";
+            }
+        }
+
+
+        var month_name_arr = [ 'January', 'February', 'March','April','May','June','July','August','September','October','November','December'];
+        
+
+        var month_str_open = '<div class="month__calendar"><div class="month__header"><h3 class="month__title">[month_name]<span>[year]</span></h3></div>';
+        var month_str_ol_open = '<ol class="month__list"><li class="month__week">Mon</li><li class="month__week">Tue</li><li class="month__week">Wed</li><li class="month__week">Thu</li><li class="month__week">Fri</li><li class="month__week">Sat</li><li class="month__week">Sun</li>';
+        var month_str_ol_close = '</ol>';
+        var month_str_close = '</div >';
+
+        var month_str_day = '<li class="month__day [first-day] [disabled]"><button onclick="dayClicked([year],[month],[day_number],\'[disabled]\')" class="month__button [disabled] [first-active] [last-active] [active]">[day_number]</button></li>';
+
+        function pad (num, size) {
+            var s = "000000000" + num;
+            return s.substr(s.length - size);
+        }
+
+        var checkin_checkout_toggle = 0;
+        function dayClicked(y,m,d,disabled) {
+            //alert(y + "," + m + "," + d + "," + disabled);
+            if (disabled == "disabled") { } else {
+                if (checkin_checkout_toggle == 0) {
+                    checkin_date = y + "-" + pad(m, 2) + "-" + pad(d, 2);
+                    checkin_checkout_toggle = 1;
+                } else {
+                    checkout_date = y + "-" + pad(m, 2) + "-" + pad(d, 2);
+                    checkin_checkout_toggle = 0;
+                }
+                showCalendar(current_start_month, current_start_year);
+            }
+        }
+        function showCalendar(start_month,start_year) {
+            var outstr = '';
+            var m = start_month;
+            var y = start_year;
+            if (m > 12) { m -= 12; y += 1 };
+            var first_month_str = oneMonth(m,y);
+            m += 1; if (m > 12) { m -= 12; y += 1 };
+            var second_month_str = oneMonth(m,y);
+            m += 1; if (m > 12) { m -= 12; y += 1 };
+            var third_month_str = oneMonth(m,y);
+
+            document.getElementById("month-container").innerHTML = first_month_str+second_month_str+third_month_str;
+        }
+        var getDaysInMonth = function (month, year) {
+            // Here January is 1 based
+            //Day 0 is the last day in the previous month
+            return new Date(year, month, 0).getDate();
+            // Here January is 0 based
+            // return new Date(year, month+1, 0).getDate();
+        };
+
+        function isPastDate(currentFullDaysSinceEpoch,y,m,d) {
+            var checkdate = new Date(y, m-1, i)
+            var fullDaysSinceEpoch = Math.floor(checkdate / 8.64e7);
+            if (fullDaysSinceEpoch < currentFullDaysSinceEpoch) { return true; }
+            return false;
+        }
+        function isCheckinDate(y, m, d) {
+
+            var test_date = new Date(checkin_date + " 00:00:00");
+            var test_year = test_date.getFullYear();
+            var test_month = test_date.getMonth()+1;
+            var test_day = test_date.getDate();
+
+            if ((test_year == y) && (test_month == m) && (test_day == d)) {
+                return true;
+            }
+            return false;
+        }
+        function isBetweenDate(y, m, d) {
+            var from_date = new Date(checkin_date + " 00:00:00");
+            var from_year = from_date.getFullYear();
+            var from_month = from_date.getMonth() + 1;
+            var from_day = from_date.getDate();
+
+            var to_date = new Date(checkout_date + " 00:00:00");
+            var to_year = to_date.getFullYear();
+            var to_month = to_date.getMonth() + 1;
+            var to_day = to_date.getDate();
+
+            var between_date = new Date(y, m-1, d, 0, 0, 0);
+
+            //alert(from_date + "\n" + between_date + "\n" + to_date);
+
+            if ((between_date > from_date) && (between_date < to_date)) {
+                return true;
+            }
+
+            
+            return false;
+        }
+        function isCheckoutDate(y, m, d) {
+            var test_date = new Date(checkout_date + " 00:00:00");
+            var test_year = test_date.getFullYear();
+            var test_month = test_date.getMonth() + 1;
+            var test_day = test_date.getDate();
+
+            if ((test_year == y) && (test_month == m) && (test_day == d)) {
+                return true;
+            }
+            return false;
+        }
+
+        function oneMonth(m,y) {
+            var outstr = '';
+            var tstr = '';
+            var maxdays = getDaysInMonth(m, y);
+            var now = new Date();
+            var currentFullDaysSinceEpoch = Math.floor(now / 8.64e7);
+            
+
+            for (i = 1; i <=maxdays; i++) {
+                tstr = month_str_day;
+                tstr = tstr.replace(new RegExp("\\[year]", "g"), y);
+                tstr = tstr.replace(new RegExp("\\[month]", "g"), m);
+                tstr = tstr.replace(new RegExp("\\[day_number]", "g"), i);
+                if (i == 1) {
+                    tstr = tstr.replace(new RegExp("\\[first-day]", "g"), "first-day");
+                }
+                else {
+                    tstr = tstr.replace(new RegExp("\\[first-day]", "g"), "");
+                }
+
+                if (isPastDate(currentFullDaysSinceEpoch, y, m, i)) {
+                    tstr = tstr.replace(new RegExp("\\[disabled]", "g"), "disabled");
+                }
+                else {
+                    tstr = tstr.replace(new RegExp("\\[disabled]", "g"), "");
+                }
+
+                if (isCheckinDate(y,m,i)) {
+                    tstr = tstr.replace(new RegExp("\\[first-active]", "g"), "first-active");
+                }
+                else {
+                    tstr = tstr.replace(new RegExp("\\[first-active]", "g"), "");
+                }
+
+                if (isCheckoutDate(y,m,i)) {
+                    tstr = tstr.replace(new RegExp("\\[last-active]", "g"), "last-active");
+                }
+                else {
+                    tstr = tstr.replace(new RegExp("\\[last-active]", "g"), "");
+                }
+
+                if (isBetweenDate(y,m,i)) {
+                    tstr = tstr.replace(new RegExp("\\[active]", "g"), "active");
+                }
+                else {
+                    tstr = tstr.replace(new RegExp("\\[active]", "g"), "");
+                }
+
+                outstr += tstr;
+            }
+
+            var month_str_open_outstr = month_str_open;
+            tstr = month_str_open.replace(new RegExp("\\[month_name]", "g"), "" + month_name_arr[m - 1] + " ");
+            tstr = tstr.replace(new RegExp("\\[year]", "g"), y);
+            month_str_open_outstr = tstr;
+            return month_str_open_outstr + month_str_ol_open + outstr + month_str_ol_close + month_str_close;
+        }
+
+
+
+        function adjustPax(pax_type, n) {
+            if (pax_type == 0) {
+                pax_adults += n;
+                if (pax_adults < 0) pax_adults = 0;
+            }
+            if (pax_type == 1) {
+                pax_children += n;
+                if (pax_children < 0) pax_children = 0;
+            }
+            if (pax_type == 2) {
+                pax_infants += n;
+                if (pax_infants < 0) pax_infants = 0;
+            }
+
+            pax_total = pax_adults + pax_children + pax_infants;
+
+            document.getElementById("pax_adults").value = pax_adults;
+            document.getElementById("pax_adults_display").innerHTML = pax_adults;
+
+            document.getElementById("pax_children").value = pax_children;
+            document.getElementById("pax_children_display").innerHTML = pax_children;
+
+            document.getElementById("pax_infants").value = pax_infants;
+            document.getElementById("pax_infants_display").innerHTML = pax_infants;
+
+            if (pax_adults == 0) {
+                document.getElementById("lbl_pax_adults").classList.add("disabled");
+                document.getElementById("btn_pax_adults_minus").classList.add("disabled");
+                document.getElementById("pax_adults_display").classList.add("disabled");
+            }
+            else {
+                document.getElementById("lbl_pax_adults").classList.remove("disabled");
+                document.getElementById("btn_pax_adults_minus").classList.remove("disabled");
+                document.getElementById("pax_adults_display").classList.remove("disabled");
+            }
+
+            if (pax_children == 0) {
+                document.getElementById("lbl_pax_children").classList.add("disabled");
+                document.getElementById("btn_pax_children_minus").classList.add("disabled");
+                document.getElementById("pax_children_display").classList.add("disabled");
+            }
+            else {
+                document.getElementById("lbl_pax_children").classList.remove("disabled");
+                document.getElementById("btn_pax_children_minus").classList.remove("disabled");
+                document.getElementById("pax_children_display").classList.remove("disabled");
+            }
+
+            if (pax_infants == 0) {
+                document.getElementById("lbl_pax_infants").classList.add("disabled");
+                document.getElementById("btn_pax_infants_minus").classList.add("disabled");
+                document.getElementById("pax_infants_display").classList.add("disabled");
+            }
+            else {
+                document.getElementById("lbl_pax_infants").classList.remove("disabled");
+                document.getElementById("btn_pax_infants_minus").classList.remove("disabled");
+                document.getElementById("pax_infants_display").classList.remove("disabled");
+            }
+
+            doPaxDetails(pax_total);
+        }
+
+        function doInclusions() {
+            var str = '<div class="guest__group"><h6 class="guest__label">[inclusion_title]</h6><label for="inclusions_[inclusion_id]" class="guest__controler guest__controler--label"><input type="checkbox" name="" id="inclusions_[inclusion_id]" class="guest__input" /><span class="guest__checkbox"></span><span id="inclusions_yesno_[inclusion_id]" class="guest__checkbox-info disabled">No</span></label></div>';
+            var outstr = '';
+            var tstr;
+            for (i = 1; i < 10; i++) {
+                tstr = str;
+                tstr = tstr.replace(new RegExp("\\[inclusion_id]", "g"), i);
+                tstr = tstr.replace(new RegExp("\\[inclusion_title]", "g"), "inclusion " + i);
+
+                outstr = outstr + tstr;
+            }
+            document.getElementById("inclusions").innerHTML = outstr;
+
+        }
+
+        
+            
+                    
+                    
+                    
+                    
+                    
+
+        function doPaxDetails(n) {
+            var ul_start_str = '<ul class="detail__list">';
+            var primary_str = '<li class="detail__item"><p class="detail__text">Primary guest<span class="detail__info">This is who will be sent all information</span></p><div class="detail__container">';
+            primary_str = primary_str + '<div class="detail__group"><label for="name" class="detail__label">First name</label><input type="text" class="detail__input" id="name_1" /></div>';
+            primary_str = primary_str + '<div class="detail__group"><label for="lastname" class="detail__label">Last name</label><input type="text" class="detail__input" id="lastname_1" /></div>';
+            primary_str = primary_str + '<div class="detail__group"><label for="email" class="detail__label">email</label><input type="email" class="detail__input" id="email_1" /></div>';
+            primary_str = primary_str + '<div class="detail__group"><label for="phone" class="detail__label">phone</label><input type="text" class="detail__input" id="phone_1" />';
+            primary_str = primary_str + '</div></div></li>';
+
+            var str = '<li class="detail__item"><p class="detail__text">Guest [pax_details_seq]</p><div class="detail__container">';
+            str = str + '<div class="detail__group"><input type="text" class="detail__input" id="name_[pax_details_seq]" placeholder="First name" /></div>';
+            str = str + '<div class="detail__group"><input type="text" class="detail__input" id="lastname_[pax_details_seq]" placeholder="Last name" /></div>';
+            str = str + '<div class="detail__group"><input type="email" class="detail__input" id="email_[pax_details_seq]" placeholder="email" /></div>';
+            str = str + '<div class="detail__group"><input type="text" class="detail__input" id="phone_[pax_details_seq]" placeholder="phone" /></div>';
+            str = str + '</div></li>';
+            
+            var ul_end_str = '</ul>';
+            var outstr = '';
+            var tstr;
+            for (i = 2; i < n+1; i++) {
+                tstr = str;
+                tstr = tstr.replace(new RegExp("\\[pax_details_seq]", "g"), i);
+                outstr = outstr + tstr;
+            }
+            document.getElementById("pax_details").innerHTML = ul_start_str + primary_str+outstr +ul_end_str;
+        }
+
+    </script>
+
+    
+            
+            
+            
+            
+           
+</head>
+  <body>
+    <div id="step_1" class="calendar" style="display:block;">
+      <div class="calendar__header">
+        <h2 class="calendar__title">Availability and booking</h2>
+        <div class="calendar__heading">
+          <span>FROM</span> <span class="calendar__header-price dark">237</span
+          ><span>/night</span>
+        </div>
+      </div>
+      <div class="calendar__body">
+        <div class="month">
+          <div class="month__container" id="month-container">
+            
+          </div>
+          <nav class="month__nav">
+            <button class="month__nav-button month__nav-button--prev">
+              <svg class="month__icon">
+                <use xlink:href="sprite.svg#icon-arrow"></use>
+              </svg>
+            </button>
+            <button class="month__nav-button month__nav-button--next">
+              <svg class="month__icon">
+                <use xlink:href="sprite.svg#icon-arrow"></use>
+              </svg>
+            </button>
+          </nav>
+        </div>
+      </div>
+      <div class="calendar__footer">
+        <div class="checking">
+          <p class="checking__text">
+            check-in
+            <span class="checking__date">Fri 23 Jan 2021</span>
+          </p>
+          <div class="checking__container">
+            <div class="checking__dropdown">
+              <div class="checking__selected">
+                <span class="checking__night">3 Nights</span
+                ><span class="checking__price-selected"
+                  >FROM<span class="checking__total">900</span></span
+                >
+                <span class="checking__small">(min stay)</span>
+              </div>
+              <div class="checking__options none">
+                <h3 class="checking__title">
+                  Starting <span>Fri 23 Jan 2021</span>
+                </h3>
+                <ul class="checking__list">
+                  <li class="checking__item checking__item--head">
+                    <span></span>
+                    <span class="checking__cell-title">From total</span>
+                    <span class="checking__cell-title">Per night</span>
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night"
+                      >3 Nights
+                      <span class="checking__small">(min stay)</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total">900</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total">300</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">4 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">1200</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total">300</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">5 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">1500</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total">300</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">6 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">1800</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total">300</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">7 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">1750</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">8 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">2000</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">9 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">2250</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">10 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">2500</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">11 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">2750</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">12 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">3000</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">13 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">3250</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-1">250</span></span
+                    >
+                  </li>
+                  <li class="checking__item">
+                    <span class="checking__night">14 Nights</span>
+                    <span class="checking__cell"
+                      ><span class="checking__total">2800</span></span
+                    >
+                    <span class="checking__cell"
+                      ><span class="checking__total discount-2">200</span></span
+                    >
+                  </li>
+                </ul>
+                <p class="checking__info">
+                  For longer stays or different dates, <br />
+                  choose from calendar
+                </p>
+              </div>
+            </div>
+          </div>
+          <p class="checking__text">
+            check-out
+            <span class="checking__date">Sun 25 Jan 2021</span>
+          </p>
+        </div>
+        <button onclick="goToStep(2)" class="calendar__button calendar__button--right left">
+          Choose guests & extras
+        </button>
+      </div>
+    </div>
+    <div id="step_2" class="calendar" style="display:none;">
+      <div class="calendar__header calendar__header--line">
+        <h2 class="calendar__title">Choose guests & extras</h2>
+        <div class="calendar__heading calendar__heading--right">
+          <h4 class="calendar__heading--title">Whole house</h4>
+          <span class="calendar__header-price light">1870.00</span
+          ><span>total</span>
+        </div>
+      </div>
+      <div class="calendar__body calendar__body--flex">
+        <div class="calendar__check">
+          <p class="checking__text">
+            check-in
+            <span class="checking__date">Fri 23 Jan</span>
+          </p>
+          <p class="checking__text">
+            check-out
+            <span class="checking__date">Sun 25 Jan 2021</span>
+          </p>
+        </div>
+        <div class="guest">
+            <div class="guest__group">
+                <label for="adults" class="guest__label disabled" id="lbl_pax_adults">Adults</label>
+                <div class="guest__controler">
+                    <button class="guest__button disabled" id="btn_pax_adults_minus" onclick="adjustPax(0, -1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-minus"></use>
+                        </svg>
+                    </button>
+                    <span class="guest__total disabled" id="pax_adults_display">0</span>
+                    <button class="guest__button" onclick="adjustPax(0, 1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-add"></use>
+                        </svg>
+                    </button>
+                    <input type="text" class="guest__input" id="pax_adults" />
+                </div>
+            </div>
+            <div class="guest__group">
+                <label for="children" class="guest__label disabled" id="lbl_pax_children">Children <span class="guest__info">Age 2-12</span></label>
+                <div class="guest__controler">
+                    <button class="guest__button disabled" id="btn_pax_children_minus" onclick="adjustPax(1, -1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-minus"></use>
+                        </svg>
+                    </button>
+                    <span class="guest__total disabled" id="pax_children_display">0</span>
+                    <button class="guest__button" onclick="adjustPax(1, 1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-add"></use>
+                        </svg>
+                    </button>
+                    <input type="text" class="guest__input" id="pax_children" />
+                </div>
+            </div>
+            <div class="guest__group">
+                <label for="infants" class="guest__label disabled" id="lbl_pax_infants">Infants <span class="guest__info">Under 2 yrs</span></label>
+                <div class="guest__controler">
+                    <button class="guest__button disabled" id="btn_pax_infants_minus" onclick="adjustPax(2, -1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-minus"></use>
+                        </svg>
+                    </button>
+                    <span class="guest__total disabled" id="pax_infants_display">0</span>
+                    <button class="guest__button" onclick="adjustPax(2, 1);">
+                        <svg class="guest__icon">
+                            <use xlink:href="sprite.svg#icon-add"></use>
+                        </svg>
+                    </button>
+                    <input type="text" class="guest__input" id="pax_infants" />
+                </div>
+            </div>
+            <div id="inclusions"></div>
+            <div class="guest__group">
+                <h6 class="guest__label">Pets</h6>
+                <label for="pets" class="guest__controler guest__controler--label">
+                    <input type="checkbox" name="" id="pets" class="guest__input" />
+                    <span class="guest__checkbox"></span>
+                    <span class="guest__checkbox-info">Yes</span>
+                </label>
+            </div>
+
+            <div class="guest__group">
+                <h6 class="guest__label">Gym pass</h6>
+                <label for="gym" class="guest__controler guest__controler--label">
+                    <input type="checkbox" name="" id="gym" class="guest__input" />
+                    <span class="guest__checkbox"></span>
+                    <span class="guest__checkbox-info disabled">No</span>
+                </label>
+            </div>
+
+            <div class="guest__group">
+                <h6 class="guest__label">TEST</h6>
+                <label for="test" class="guest__controler guest__controler--label">
+                    <input type="checkbox" name="" id="test" class="guest__input" />
+                    <span class="guest__checkbox"></span>
+                    <span class="guest__checkbox-info disabled">No</span>
+                </label>
+            </div>
+
+        </div>
+        <div class="summary">
+          <ul class="summary__list">
+            <li class="summary__item">
+              <span class="summary__detail"
+                ><span class="summary__total">250</span> x 7 nights
+              </span>
+              <span class="summary__total">1750.00</span>
+            </li>
+            <li class="summary__item">
+              <span class="summary__detail">Extra guests</span>
+              <span class="summary__total">1750.00</span>
+            </li>
+            <li class="summary__item">
+              <span class="summary__detail">Pet charge</span>
+              <span class="summary__total">1750.00</span>
+            </li>
+            <li class="summary__item">
+              <span class="summary__detail">Cleaning</span>
+              <span class="summary__total">1750.00</span>
+            </li>
+            <li class="summary__item hight-light">
+              <span class="summary__detail">Total</span>
+              <span class="summary__total">1750.00</span>
+            </li>
+            <li class="summary__item">
+              <span class="summary__detail">Deposit</span>
+              <span class="summary__total">1750.00</span>
+            </li>
+          </ul>
+          <p class="summary__text">Paid today. Remainder paid at check-in</p>
+        </div>
+      </div>
+      <div class="calendar__footer">
+        <button onclick="goToStep(1)" class="calendar__button calendar__button--left">
+          Change dates
+        </button>
+        <button onclick="goToStep(3)" class="calendar__button calendar__button--right">
+          Your Details
+        </button>
+      </div>
+    </div>
+    <div id="step_3" class="calendar" style="display:none;">
+      <div class="calendar__header calendar__header--line">
+        <h2 class="calendar__title">Your details</h2>
+        <div class="calendar__heading calendar__heading--right">
+          <h4 class="calendar__heading--title">Whole house</h4>
+          <span class="calendar__header-price darker">1870.00</span
+          ><span>total</span>
+        </div>
+      </div>
+      <div class="calendar__body calendar__body--flex">
+        <div class="calendar__check">
+          <p class="checking__text">
+            check-in
+            <span class="checking__date">Fri 23 Jan</span>
+          </p>
+          <p class="checking__text">
+            check-out
+            <span class="checking__date">Sun 25 Jan 2021</span>
+          </p>
+        </div>
+        <div class="detail" id="pax_details">
+
+        </div>
+      </div>
+      <div class="calendar__footer">
+        <button onclick="goToStep(2)" class="calendar__button calendar__button--left">
+          Change guests & extras
+        </button>
+        <button onclick="goToStep(4)" class="calendar__button calendar__button--right">
+          Book now
+        </button>
+      </div>
+    </div>
+    <script>
+      $dropdownButton = document.querySelector(".checking__selected");
+      $checkingOptions = document.querySelector(".checking__options");
+
+      $dropdownButton.addEventListener("click", () => {
+        $checkingOptions.classList.toggle("none");
+      });
+
+      function clickHandle() {
+        document.addEventListener("click", () => {});
+      }
+        showCalendar(current_start_month,current_start_year);
+        doInclusions();
+    </script>
+  </body>
+</html>

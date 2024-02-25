@@ -1,0 +1,42 @@
+.summary {
+  width: 100%;
+  padding-top: 1.275rem;
+  color: $sumary-color;
+  @media (min-width: $sm) {
+    padding-right: 1rem;
+    width: auto;
+    margin-left: auto;
+  }
+  &__list {
+    border-top: 1px solid $sumary-color;
+    list-style: none;
+    min-width: 16.25rem;
+    padding-top: 1rem;
+  }
+  &__item {
+    padding: 0.35rem 0.55rem;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 300;
+    &.hight-light {
+      color: $principal-darker-color;
+      text-transform: uppercase;
+      background: $checkbox-color;
+      font-weight: 700;
+    }
+  }
+  &__text {
+    padding-left: 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  &__total {
+    position: relative;
+    &:before {
+      content: "$";
+      font-size: 0.8rem;
+      display: inline-block;
+      transform: translateY(-20%);
+    }
+  }
+}
