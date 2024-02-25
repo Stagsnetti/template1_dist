@@ -2,8 +2,8 @@
 *
 
 # But don't ignore these directories and their contents
-!/CalenderCommit/
-!/CalenderCommit/*
+/CalenderCommit/
+/CalenderCommit/*
 !/dist/
 !/dist/*
 !cpanel.yml
@@ -11,3 +11,4 @@
 !.gitignore
 .gitmodules
 !test.txt
+.git
