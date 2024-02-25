@@ -2,5 +2,5 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/bauhinia/public_html/
-    - /bin/cp Test.txt $DEPLOYPATH
+    - /bin/cp -R CalenderCommit/* $DEPLOYPATH
     - /bin/cp -R dist/* $DEPLOYPATH
