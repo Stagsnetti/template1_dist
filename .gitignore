@@ -8,6 +8,7 @@
 !/dist/*
 !dist/templates/
 !dist/templates/*
+!dist/templates/assets/*
 !cpanel.yml
 !.cpanel.yml
 !.gitignore
