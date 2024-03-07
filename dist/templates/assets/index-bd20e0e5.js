@@ -1,4 +1,4 @@
-import{r as Ce,p as Ee,a as qe,b as $e,g as Be}from"../template1.js";var le={exports:{}},U={},se={exports:{}},T={},ie={exports:{}};(function(t,e){Object.defineProperty(e,"__esModule",{value:!0}),e.default=m;/*!
+import{r as Ce,p as Ee,g as qe,a as $e,b as Be}from"../template1.js";var le={exports:{}},U={},se={exports:{}},T={},ie={exports:{}};(function(t,e){Object.defineProperty(e,"__esModule",{value:!0}),e.default=m;/*!
  * Adapted from jQuery UI core
  *
  * http://jqueryui.com
