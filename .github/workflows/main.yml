@@ -17,6 +17,6 @@ name: Get latest code
 name: Push files
     uses: SamKirkland/FTP-Deploy-Action@v4.3.5
     with:
-      server: nisquared.com/template/
+      server: nisquared.com
       username: nisquaredroot
       password: ${{ secrets.UNICHE_FTP_PASSWORD }}
