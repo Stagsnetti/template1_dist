@@ -20,3 +20,4 @@ name: Push files
       server: nisquared.com
       username: nisquaredroot
       password: ${{ secrets.UNICHE_FTP_PASSWORD }}
+      local-dir: "./template"
